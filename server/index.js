@@ -37,6 +37,11 @@ app.get('/health', (req, res) => {
 });
 
 // Authentication Endpoints
+// Health check route
+app.get('/', (req, res) => {
+    res.send('EduReply API is running!');
+});
+
 app.post('/api/register', async (req, res) => {
     try {
         const { name, email, password } = req.body;
