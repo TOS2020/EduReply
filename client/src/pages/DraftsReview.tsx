@@ -18,7 +18,7 @@ export default function DraftsReview() {
 
     const refreshDrafts = () => {
         if (!token) return;
-        fetch('http://localhost:3001/api/drafts', {
+        fetch('https://edureply.onrender.com/api/drafts', {
             headers: { 'Authorization': `Bearer ${token}` }
         })
             .then(res => res.json())
@@ -28,7 +28,7 @@ export default function DraftsReview() {
     const handleSimulate = () => {
         if (!simulationEmail || !simulationSender) return
         setIsSimulating(true)
-        fetch('http://localhost:3001/api/simulate-email', {
+        fetch('https://edureply.onrender.com/api/simulate-email', {
             method: 'POST',
             headers: { 
                 'Content-Type': 'application/json',
@@ -61,7 +61,7 @@ export default function DraftsReview() {
 
     const handleDiscard = (id: number) => {
         if (!confirm('Are you sure you want to discard this draft?') || !token) return
-        fetch(`http://localhost:3001/api/drafts/${id}`, {
+        fetch(`https://edureply.onrender.com/api/drafts/${id}`, {
             method: 'DELETE',
             headers: { 'Authorization': `Bearer ${token}` }
         })
@@ -74,7 +74,7 @@ export default function DraftsReview() {
     const handleApprove = (id: number) => {
         if (!token) return
         setIsSimulating(true) // Reuse loading state
-        fetch(`http://localhost:3001/api/drafts/${id}/approve`, {
+        fetch(`https://edureply.onrender.com/api/drafts/${id}/approve`, {
             method: 'POST',
             headers: { 'Authorization': `Bearer ${token}` }
         })
@@ -92,7 +92,7 @@ export default function DraftsReview() {
 
     const handleSearchArticle = (id: number) => {
         if (!token) return
-        fetch(`http://localhost:3001/api/drafts/${id}/search-article`, {
+        fetch(`https://edureply.onrender.com/api/drafts/${id}/search-article`, {
             method: 'POST',
             headers: { 'Authorization': `Bearer ${token}` }
         })
@@ -105,7 +105,7 @@ export default function DraftsReview() {
     }
 
     const handleAttachUrl = (id: number, url: string) => {
-        fetch(`http://localhost:3001/api/drafts/${id}/attach-url`, {
+        fetch(`https://edureply.onrender.com/api/drafts/${id}/attach-url`, {
             method: 'POST',
             headers: { 
                 'Content-Type': 'application/json',
@@ -125,7 +125,7 @@ export default function DraftsReview() {
 
     const handleRemoveAttachment = (draftId: number, index: number) => {
         if (!confirm('Remove this attachment?')) return;
-        fetch(`http://localhost:3001/api/drafts/${draftId}/attachments/${index}`, {
+        fetch(`https://edureply.onrender.com/api/drafts/${draftId}/attachments/${index}`, {
             method: 'DELETE',
             headers: { 'Authorization': `Bearer ${token}` }
         })
@@ -136,7 +136,7 @@ export default function DraftsReview() {
     }
 
     const handleUpdateDraft = (id: number) => {
-        fetch(`http://localhost:3001/api/drafts/${id}`, {
+        fetch(`https://edureply.onrender.com/api/drafts/${id}`, {
             method: 'PUT',
             headers: { 
                 'Content-Type': 'application/json',

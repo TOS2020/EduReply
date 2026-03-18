@@ -11,7 +11,7 @@ export default function Settings() {
 
     useEffect(() => {
         if (!token) return;
-        fetch('http://localhost:3001/api/user/settings', {
+        fetch('https://edureply.onrender.com/api/user/settings', {
             headers: { 'Authorization': `Bearer ${token}` }
         })
         .then(res => res.json())
@@ -31,7 +31,7 @@ export default function Settings() {
         setStatus(null);
 
         try {
-            const response = await fetch('http://localhost:3001/api/user/settings', {
+            const response = await fetch('https://edureply.onrender.com/api/user/settings', {
                 method: 'POST',
                 headers: { 
                     'Content-Type': 'application/json',

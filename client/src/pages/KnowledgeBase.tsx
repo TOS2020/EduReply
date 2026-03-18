@@ -19,7 +19,7 @@ export default function KnowledgeBase() {
 
     useEffect(() => {
         if (!token) return;
-        fetch('http://localhost:3001/api/knowledge-base', {
+        fetch('https://edureply.onrender.com/api/knowledge-base', {
             headers: { 'Authorization': `Bearer ${token}` }
         })
             .then(res => res.json())
@@ -28,7 +28,7 @@ export default function KnowledgeBase() {
 
     const handleAdd = () => {
         if (!newKeyword || !newDetails || !token) return
-        fetch('http://localhost:3001/api/knowledge-base', {
+        fetch('https://edureply.onrender.com/api/knowledge-base', {
             method: 'POST',
             headers: { 
                 'Content-Type': 'application/json',
@@ -54,7 +54,7 @@ export default function KnowledgeBase() {
 
     const handleSaveEdit = (index: number) => {
         if (!editKey || !editValue || !token) return
-        fetch(`http://localhost:3001/api/knowledge-base/${index}`, {
+        fetch(`https://edureply.onrender.com/api/knowledge-base/${index}`, {
             method: 'PUT',
             headers: { 
                 'Content-Type': 'application/json',
@@ -71,7 +71,7 @@ export default function KnowledgeBase() {
 
     const handleDelete = (index: number) => {
         if (!confirm('Are you sure you want to delete this entry?') || !token) return
-        fetch(`http://localhost:3001/api/knowledge-base/${index}`, {
+        fetch(`https://edureply.onrender.com/api/knowledge-base/${index}`, {
             method: 'DELETE',
             headers: { 'Authorization': `Bearer ${token}` }
         }).then(() => {

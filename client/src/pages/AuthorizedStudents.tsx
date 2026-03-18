@@ -12,7 +12,7 @@ export default function AuthorizedStudents() {
 
     useEffect(() => {
         if (!token) return;
-        fetch('http://localhost:3001/api/authorized-students', {
+        fetch('https://edureply.onrender.com/api/authorized-students', {
             headers: { 'Authorization': `Bearer ${token}` }
         })
             .then(res => res.json())
@@ -21,7 +21,7 @@ export default function AuthorizedStudents() {
 
     const handleAdd = () => {
         if (!newEmail || !token) return
-        fetch('http://localhost:3001/api/authorized-students', {
+        fetch('https://edureply.onrender.com/api/authorized-students', {
             method: 'POST',
             headers: { 
                 'Content-Type': 'application/json',
@@ -45,7 +45,7 @@ export default function AuthorizedStudents() {
 
     const handleSaveEdit = (index: number) => {
         if (!editEmail || !token) return
-        fetch(`http://localhost:3001/api/authorized-students/${index}`, {
+        fetch(`https://edureply.onrender.com/api/authorized-students/${index}`, {
             method: 'PUT',
             headers: { 
                 'Content-Type': 'application/json',
@@ -62,7 +62,7 @@ export default function AuthorizedStudents() {
 
     const handleDelete = (index: number) => {
         if (!confirm('Are you sure you want to remove this authorized email?') || !token) return
-        fetch(`http://localhost:3001/api/authorized-students/${index}`, {
+        fetch(`https://edureply.onrender.com/api/authorized-students/${index}`, {
             method: 'DELETE',
             headers: { 'Authorization': `Bearer ${token}` }
         }).then(() => {
