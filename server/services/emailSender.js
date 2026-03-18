@@ -31,7 +31,7 @@ async function sendEmail(smtpConfig, to, subject, html, attachments) {
     const transporter = nodemailer.createTransport({
         host: smtpConfig.host || 'smtp.gmail.com',
         port: parseInt(smtpConfig.port) || 465,
-        secure: true,
+        secure: parseInt(smtpConfig.port) === 465,
         auth: {
             user: smtpConfig.user,
             pass: smtpConfig.pass
