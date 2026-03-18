@@ -1,0 +1,23 @@
+# Node.js
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Environment
+.env
+
+# Database (User Data)
+server/data/db.json
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Build outputs
+client/dist/
+
+# System
+Thumbs.db
+.DS_Store

@@ -1,0 +1,98 @@
+
+> edureply-server@1.0.0 dev
+> nodemon index.js
+
+[33m[nodemon] 3.1.14[39m
+[33m[nodemon] to restart at any time, enter `rs`[39m
+[33m[nodemon] watching path(s): *.*[39m
+[33m[nodemon] watching extensions: js,mjs,cjs,json[39m
+[32m[nodemon] starting `node index.js`[39m
+Server is running on port 3001
+C:\Users\cli002\Downloads\EduReply_Bio-2608\server\node_modules\@google\generative-ai\dist\index.js:414
+    throw new GoogleGenerativeAIFetchError(`Error fetching from ${url.toString()}: [${response.status} ${response.statusText}] ${message}`, response.status, response.statusText, errorDetails);
+          ^
+
+GoogleGenerativeAIFetchError: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent: [404 Not Found] models/gemini-2.0-flash-exp is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+    at handleResponseNotOk (C:\Users\cli002\Downloads\EduReply_Bio-2608\server\node_modules\@google\generative-ai\dist\index.js:414:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async makeRequest (C:\Users\cli002\Downloads\EduReply_Bio-2608\server\node_modules\@google\generative-ai\dist\index.js:387:9)
+    at async generateContent (C:\Users\cli002\Downloads\EduReply_Bio-2608\server\node_modules\@google\generative-ai\dist\index.js:832:22)
+    at async generateEduReply (C:\Users\cli002\Downloads\EduReply_Bio-2608\server\services\aiService.js:34:18)
+    at async C:\Users\cli002\Downloads\EduReply_Bio-2608\server\index.js:138:26 {
+  status: 404,
+  statusText: 'Not Found',
+  errorDetails: undefined
+}
+
+Node.js v24.13.0
+Assertion failed: !(handle->flags & UV_HANDLE_CLOSING), file src\win\async.c, line 76
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node index.js`[39m
+Server is running on port 3001
+C:\Users\cli002\Downloads\EduReply_Bio-2608\server\node_modules\@google\generative-ai\dist\index.js:414
+    throw new GoogleGenerativeAIFetchError(`Error fetching from ${url.toString()}: [${response.status} ${response.statusText}] ${message}`, response.status, response.statusText, errorDetails);
+          ^
+
+GoogleGenerativeAIFetchError: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent: [404 Not Found] models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+    at handleResponseNotOk (C:\Users\cli002\Downloads\EduReply_Bio-2608\server\node_modules\@google\generative-ai\dist\index.js:414:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async makeRequest (C:\Users\cli002\Downloads\EduReply_Bio-2608\server\node_modules\@google\generative-ai\dist\index.js:387:9)
+    at async generateContent (C:\Users\cli002\Downloads\EduReply_Bio-2608\server\node_modules\@google\generative-ai\dist\index.js:832:22)
+    at async generateEduReply (C:\Users\cli002\Downloads\EduReply_Bio-2608\server\services\aiService.js:34:18)
+    at async C:\Users\cli002\Downloads\EduReply_Bio-2608\server\index.js:138:26 {
+  status: 404,
+  statusText: 'Not Found',
+  errorDetails: undefined
+}
+
+Node.js v24.13.0
+Assertion failed: !(handle->flags & UV_HANDLE_CLOSING), file src\win\async.c, line 76
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node index.js`[39m
+Server is running on port 3001
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node index.js`[39m
+Server is running on port 3001
+C:\Users\cli002\Downloads\EduReply_Bio-2608\server\node_modules\@google\generative-ai\dist\index.js:414
+    throw new GoogleGenerativeAIFetchError(`Error fetching from ${url.toString()}: [${response.status} ${response.statusText}] ${message}`, response.status, response.statusText, errorDetails);
+          ^
+
+GoogleGenerativeAIFetchError: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent: [404 Not Found] models/gemini-pro is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+    at handleResponseNotOk (C:\Users\cli002\Downloads\EduReply_Bio-2608\server\node_modules\@google\generative-ai\dist\index.js:414:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async makeRequest (C:\Users\cli002\Downloads\EduReply_Bio-2608\server\node_modules\@google\generative-ai\dist\index.js:387:9)
+    at async generateContent (C:\Users\cli002\Downloads\EduReply_Bio-2608\server\node_modules\@google\generative-ai\dist\index.js:832:22)
+    at async generateEduReply (C:\Users\cli002\Downloads\EduReply_Bio-2608\server\services\aiService.js:34:18)
+    at async C:\Users\cli002\Downloads\EduReply_Bio-2608\server\index.js:138:26 {
+  status: 404,
+  statusText: 'Not Found',
+  errorDetails: undefined
+}
+
+Node.js v24.13.0
+Assertion failed: !(handle->flags & UV_HANDLE_CLOSING), file src\win\async.c, line 76
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node index.js`[39m
+Server is running on port 3001
+C:\Users\cli002\Downloads\EduReply_Bio-2608\server\node_modules\@google\generative-ai\dist\index.js:414
+    throw new GoogleGenerativeAIFetchError(`Error fetching from ${url.toString()}: [${response.status} ${response.statusText}] ${message}`, response.status, response.statusText, errorDetails);
+          ^
+
+GoogleGenerativeAIFetchError: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent: [404 Not Found] models/gemini-1.5-flash-latest is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+    at handleResponseNotOk (C:\Users\cli002\Downloads\EduReply_Bio-2608\server\node_modules\@google\generative-ai\dist\index.js:414:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async makeRequest (C:\Users\cli002\Downloads\EduReply_Bio-2608\server\node_modules\@google\generative-ai\dist\index.js:387:9)
+    at async generateContent (C:\Users\cli002\Downloads\EduReply_Bio-2608\server\node_modules\@google\generative-ai\dist\index.js:832:22)
+    at async generateEduReply (C:\Users\cli002\Downloads\EduReply_Bio-2608\server\services\aiService.js:34:18)
+    at async C:\Users\cli002\Downloads\EduReply_Bio-2608\server\index.js:138:26 {
+  status: 404,
+  statusText: 'Not Found',
+  errorDetails: undefined
+}
+
+Node.js v24.13.0
+Assertion failed: !(handle->flags & UV_HANDLE_CLOSING), file src\win\async.c, line 76
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
