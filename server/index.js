@@ -382,9 +382,9 @@ app.post('/api/test-email-connection', authenticateToken, async (req, res) => {
             user: user.emailConfig.smtp.user,
             pass: user.emailConfig.smtp.pass
         },
-        connectionTimeout: 10000, // 10s
-        greetingTimeout: 10000,
-        socketTimeout: 10000
+        connectionTimeout: 30000, // 30s
+        greetingTimeout: 30000,
+        socketTimeout: 30000
     });
 
     try {

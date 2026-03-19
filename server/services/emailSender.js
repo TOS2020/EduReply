@@ -35,7 +35,10 @@ async function sendEmail(smtpConfig, to, subject, html, attachments) {
         auth: {
             user: smtpConfig.user,
             pass: smtpConfig.pass
-        }
+        },
+        connectionTimeout: 30000, // 30s
+        greetingTimeout: 30000,
+        socketTimeout: 30000
     });
 
     // Manually download attachments if they are URLs to provide custom headers (avoid 403)
