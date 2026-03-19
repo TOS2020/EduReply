@@ -40,6 +40,10 @@ app.get('/health', (req, res) => {
     res.json({ status: 'EduReply server is running' });
 });
 
+app.get('/ping', (req, res) => {
+    res.json({ message: 'pong-v2' });
+});
+
 // Authentication Endpoints
 // Health check route
 app.get('/', (req, res) => {
