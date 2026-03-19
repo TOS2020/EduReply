@@ -360,6 +360,39 @@ app.delete('/api/drafts/:id/attachments/:index', authenticateToken, (req, res) =
     res.json({ message: "Attachment removed.", attachments: draft.attachments });
 });
 
+// Test SMTP Connection
+app.post('/api/test-email-connection', authenticateToken, async (req, res) => {
+    const data = getData();
+    const user = data.users.find(u => String(u.id) === String(req.user.id));
+    
+    if (!user || !user.emailConfig || !user.emailConfig.smtp.user) {
+        return res.status(400).json({ message: "Email configuration missing." });
+    }
+
+    const nodemailer = require('nodemailer');
+    const transporter = nodemailer.createTransport({
+        host: user.emailConfig.smtp.host || 'smtp.gmail.com',
+        port: parseInt(user.emailConfig.smtp.port) || 465,
+        secure: parseInt(user.emailConfig.smtp.port) === 465,
+        auth: {
+            user: user.emailConfig.smtp.user,
+            pass: user.emailConfig.smtp.pass
+        },
+        connectionTimeout: 10000, // 10s
+        greetingTimeout: 10000,
+        socketTimeout: 10000
+    });
+
+    try {
+        console.log(`[Test] Verifying SMTP connection for ${user.email}...`);
+        await transporter.verify();
+        res.json({ success: true, message: "SMTP Connection Verified!" });
+    } catch (err) {
+        console.error("[Test] SMTP Verification failed:", err);
+        res.status(500).json({ success: false, message: err.message, stack: err.stack });
+    }
+});
+
 // Email Simulation Trigger (now requires auth to know which teacher)
 app.post('/api/simulate-email', authenticateToken, async (req, res) => {
     try {
