@@ -17,10 +17,17 @@ const { generateEduReply } = require('./services/aiService');
 const { startEmailListener, startListenerForUser } = require('./services/emailListener');
 const { sendEmail } = require('./services/emailSender');
 
+let lastDbError = null;
 // Connect to MongoDB
 mongoose.connect(MONGODB_URI)
-    .then(() => console.log('Connected to MongoDB'))
-    .catch(err => console.error('Could not connect to MongoDB', err));
+    .then(() => {
+        console.log('Connected to MongoDB');
+        lastDbError = null;
+    })
+    .catch(err => {
+        console.error('Could not connect to MongoDB', err);
+        lastDbError = err.message;
+    });
 
 
 // Middleware for authentication
@@ -48,7 +55,8 @@ app.use(bodyParser.json());
 app.get('/health', (req, res) => {
     res.json({ 
         status: 'EduReply server is running',
-        database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected'
+        database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
+        dbError: lastDbError
     });
 });
 
