@@ -10,7 +10,9 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 3001;
 const JWT_SECRET = process.env.JWT_SECRET || 'edureply-secret-key-123';
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/edureply';
+const rawUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/edureply';
+const uriMatch = rawUri.match(/(mongodb(?:\+srv)?:\/\/[^\s>]+)/);
+const MONGODB_URI = uriMatch ? uriMatch[1] : rawUri.trim();
 
 const { User, KnowledgeBase, AuthorizedStudent, Draft } = require('./models/schemas');
 const { generateEduReply } = require('./services/aiService');
@@ -53,10 +55,13 @@ app.use(bodyParser.json());
 
 // Routes
 app.get('/health', (req, res) => {
+    // Mask password in URI for logging
+    const maskedUri = MONGODB_URI.replace(/:([^@]+)@/, ':****@');
     res.json({ 
         status: 'EduReply server is running',
         database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
-        dbError: lastDbError
+        dbError: lastDbError,
+        connectedTo: maskedUri
     });
 });
 
