@@ -46,8 +46,12 @@ app.use(bodyParser.json());
 
 // Routes
 app.get('/health', (req, res) => {
-    res.json({ status: 'EduReply server is running' });
+    res.json({ 
+        status: 'EduReply server is running',
+        database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected'
+    });
 });
+
 
 app.get('/ping', (req, res) => {
     res.json({ message: 'pong-v2' });
@@ -108,9 +112,11 @@ app.post('/api/login', async (req, res) => {
             res.status(401).json({ message: "Invalid credentials" });
         }
     } catch (error) {
+        console.error("[Login] Exception:", error);
         res.status(500).json({ message: "Error during login", error: error.message });
     }
 });
+
 
 // User Settings Endpoints
 app.get('/api/user/settings', authenticateToken, async (req, res) => {
