@@ -1,34 +1,33 @@
 const { ImapFlow } = require('imapflow');
 const { simpleParser } = require('mailparser');
-const { getData, saveData } = require('./db');
+const { User, KnowledgeBase, AuthorizedStudent, Draft } = require('../models/schemas');
 const { generateEduReply } = require('./aiService');
 require('dotenv').config();
 
 const activeListeners = new Map();
 
 async function processNewEmail(user, mail) {
-    const sender = mail.from?.value?.[0]?.address;
-    if (!sender) return;
-    const body = mail.text || mail.html;
-    const data = getData();
-
-    console.log(`[Email] User ${user.email} received from: ${sender}`);
-
-    // Check if sender is authorized for THIS user
-    const isAuthorized = data.authorizedStudents.some(s => s.userId === user.id && s.email === sender);
-    if (!isAuthorized) {
-        console.log(`[Email] Sender ${sender} is not authorized for user ${user.email}. Skipping.`);
-        return;
-    }
-
     try {
+        const sender = mail.from?.value?.[0]?.address;
+        if (!sender) return;
+        const body = mail.text || mail.html;
+
+        console.log(`[Email] User ${user.email} received from: ${sender}`);
+
+        // Check if sender is authorized for THIS user
+        const authorized = await AuthorizedStudent.findOne({ userId: user.id, email: sender });
+        if (!authorized) {
+            console.log(`[Email] Sender ${sender} is not authorized for user ${user.email}. Skipping.`);
+            return;
+        }
+
         console.log(`[Email] Processing message for user ${user.email} from ${sender}...`);
         
         // Use user's knowledge base
-        const userKB = data.knowledgeBase.filter(entry => entry.userId === user.id);
+        const userKB = await KnowledgeBase.find({ userId: user.id });
         const aiResult = await generateEduReply(body, userKB, user.email);
 
-        const newDraft = {
+        const newDraft = new Draft({
             id: Date.now(),
             userId: user.id,
             sender,
@@ -37,13 +36,12 @@ async function processNewEmail(user, mail) {
             replyContent: aiResult.reply,
             isArticleRequest: aiResult.isArticleRequest,
             articleQuery: aiResult.articleQuery,
-            attachments: [], // To be filled by article search or manually
+            attachments: [],
             status: 'pending',
-            timestamp: new Date().toISOString()
-        };
+            timestamp: new Date()
+        });
 
-        data.drafts.push(newDraft);
-        saveData(data);
+        await newDraft.save();
         console.log(`[Email] Draft created for ${user.email} from ${sender}`);
     } catch (error) {
         console.error(`[Email] Error processing email for user ${user.email}:`, error.message);
@@ -74,7 +72,6 @@ async function startListenerForUser(user) {
 
     client.on('error', err => {
         console.error(`[Email] IMAP Error for user ${user.email}:`, err.message);
-        // The server will stay alive, and we can rely on manual restart or periodic reconnection logic
     });
 
     try {
@@ -101,20 +98,28 @@ async function startListenerForUser(user) {
 async function stopListenerForUser(userId) {
     const client = activeListeners.get(userId);
     if (client) {
-        await client.logout();
+        try {
+            await client.logout();
+        } catch (e) {
+            console.error(`[Email] Error during IMAP logout for ${userId}:`, e.message);
+        }
         activeListeners.delete(userId);
         console.log(`[Email] Stopped listener for user ID: ${userId}`);
     }
 }
 
 async function startEmailListener() {
-    console.log('[Email] Starting all email listeners...');
-    const data = getData();
-    if (!data.users) return;
-
-    for (const user of data.users) {
-        await startListenerForUser(user);
+    try {
+        console.log('[Email] Starting all email listeners...');
+        const users = await User.find({});
+        
+        for (const user of users) {
+            await startListenerForUser(user);
+        }
+    } catch (error) {
+        console.error('[Email] Error starting listeners:', error.message);
     }
 }
 
 module.exports = { startEmailListener, startListenerForUser, stopListenerForUser };
+

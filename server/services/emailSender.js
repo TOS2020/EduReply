@@ -28,6 +28,8 @@ async function sendEmail(smtpConfig, to, subject, html, attachments) {
         throw new Error('User email credentials not configured');
     }
 
+    console.log(`[Email] Connecting to SMTP: ${smtpConfig.host || 'smtp.gmail.com'}:${parseInt(smtpConfig.port) || 465} (Secure: ${parseInt(smtpConfig.port) === 465})`);
+    
     const transporter = nodemailer.createTransport({
         host: smtpConfig.host || 'smtp.gmail.com',
         port: parseInt(smtpConfig.port) || 465,
@@ -36,10 +38,12 @@ async function sendEmail(smtpConfig, to, subject, html, attachments) {
             user: smtpConfig.user,
             pass: smtpConfig.pass
         },
-        connectionTimeout: 30000, // 30s
-        greetingTimeout: 30000,
-        socketTimeout: 30000
+        tls: {
+            rejectUnauthorized: false
+        }
     });
+
+
 
     // Manually download attachments if they are URLs to provide custom headers (avoid 403)
     const processedAttachments = [];

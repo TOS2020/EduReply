@@ -17,6 +17,7 @@
     "imapflow": "^1.2.14",
     "jsonwebtoken": "^9.0.2",
     "mailparser": "^3.9.4",
+    "mongoose": "^9.3.2",
     "nodemailer": "^6.9.7"
   },
   "devDependencies": {
