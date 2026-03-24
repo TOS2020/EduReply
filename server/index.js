@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
+require('dns').setDefaultResultOrder('ipv4first');
 require('dotenv').config();
 
 const app = express();
