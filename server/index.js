@@ -450,10 +450,11 @@ app.post('/api/test-email-connection', authenticateToken, async (req, res) => {
             tls: {
                 rejectUnauthorized: false
             },
-            connectionTimeout: 10000,
-            greetingTimeout: 10000,
-            socketTimeout: 20000,
-            family: 4 // Force IPv4
+            connectionTimeout: 30000,
+            greetingTimeout: 30000,
+            socketTimeout: 60000,
+            logger: true,
+            debug: true
         });
 
 

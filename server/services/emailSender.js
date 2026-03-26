@@ -41,12 +41,11 @@ async function sendEmail(smtpConfig, to, subject, html, attachments) {
         tls: {
             rejectUnauthorized: false
         },
-        connectionTimeout: 20000,
-        greetingTimeout: 20000,
-        socketTimeout: 30000,
-        family: 4,
-        logger: true, // Output to console
-        debug: true   // Output detailed SMTP conversation
+        connectionTimeout: 30000,
+        greetingTimeout: 30000,
+        socketTimeout: 60000,
+        logger: true,
+        debug: true
     });
 
 
