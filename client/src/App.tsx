@@ -70,7 +70,7 @@ function Sidebar() {
 function App() {
     return (
         <AuthProvider>
-            <Router basename="/EduReply">
+            <Router>
                 <Routes>
                     <Route path="/login" element={<Login />} />
                     <Route path="/register" element={<Register />} />
