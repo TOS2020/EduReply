@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Settings as SettingsIcon, Mail, Shield, Save, CheckCircle, AlertCircle } from 'lucide-react';
+import { API_BASE_URL } from '../config';
 
 export default function Settings() {
     const { token } = useAuth();
@@ -8,10 +9,11 @@ export default function Settings() {
     const [imap, setImap] = useState({ host: 'imap.gmail.com', port: '993', user: '', pass: '' });
     const [status, setStatus] = useState<{ type: 'success' | 'error', message: string } | null>(null);
     const [isSaving, setIsSaving] = useState(false);
+    const [isTesting, setIsTesting] = useState(false);
 
     useEffect(() => {
         if (!token) return;
-        fetch('https://edureply.onrender.com/api/user/settings', {
+        fetch(`${API_BASE_URL}/api/user/settings`, {
             headers: { 'Authorization': `Bearer ${token}` }
         })
         .then(res => res.json())
@@ -31,7 +33,7 @@ export default function Settings() {
         setStatus(null);
 
         try {
-            const response = await fetch('https://edureply.onrender.com/api/user/settings', {
+            const response = await fetch(`${API_BASE_URL}/api/user/settings`, {
                 method: 'POST',
                 headers: { 
                     'Content-Type': 'application/json',
@@ -41,6 +43,7 @@ export default function Settings() {
                     emailConfig: { smtp, imap }
                 })
             });
+
 
             if (response.ok) {
                 setStatus({ type: 'success', message: 'Settings updated successfully!' });
@@ -52,6 +55,33 @@ export default function Settings() {
             setStatus({ type: 'error', message: 'Connection error. Please try again.' });
         } finally {
             setIsSaving(false);
+        }
+    };
+    
+    const handleTestConnection = async () => {
+        if (!token) return;
+        setIsTesting(true);
+        setStatus(null);
+        
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/test-email-connection`, {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            
+            const data = await response.json();
+            if (response.ok && data.success) {
+                setStatus({ type: 'success', message: 'SMTP Connection Verified Successfully!' });
+            } else {
+                setStatus({ type: 'error', message: `Connection Test Failed: ${data.message || 'Unknown error'}` });
+            }
+        } catch (err) {
+            setStatus({ type: 'error', message: 'Testing failed. Server might be unreachable.' });
+        } finally {
+            setIsTesting(false);
         }
     };
 
@@ -131,8 +161,11 @@ export default function Settings() {
                     </div>
                 </div>
 
-                <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                    <button type="submit" disabled={isSaving} className="btn btn-blue" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.75rem 2rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem' }}>
+                    <button type="button" onClick={handleTestConnection} disabled={isTesting || isSaving} className="btn" style={{ background: 'rgba(56, 189, 248, 0.1)', color: 'var(--accent-blue)', padding: '0.75rem 1.5rem', border: '1px solid rgba(56, 189, 248, 0.2)' }}>
+                        {isTesting ? 'Testing...' : 'Test SMTP Connection'}
+                    </button>
+                    <button type="submit" disabled={isSaving || isTesting} className="btn btn-blue" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.75rem 2rem' }}>
                         {isSaving ? 'Saving...' : <><Save size={18} /> Save Settings</>}
                     </button>
                 </div>
