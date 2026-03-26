@@ -40,7 +40,11 @@ async function sendEmail(smtpConfig, to, subject, html, attachments) {
         },
         tls: {
             rejectUnauthorized: false
-        }
+        },
+        connectionTimeout: 10000, // 10 seconds
+        greetingTimeout: 10000,
+        socketTimeout: 20000,
+        family: 4 // Force IPv4
     });
 
 

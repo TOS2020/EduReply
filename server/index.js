@@ -449,7 +449,11 @@ app.post('/api/test-email-connection', authenticateToken, async (req, res) => {
             },
             tls: {
                 rejectUnauthorized: false
-            }
+            },
+            connectionTimeout: 10000,
+            greetingTimeout: 10000,
+            socketTimeout: 20000,
+            family: 4 // Force IPv4
         });
 
 
