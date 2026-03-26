@@ -1,4 +1,5 @@
 const express = require('express');
+const path = require('path');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const bcrypt = require('bcryptjs');
@@ -72,9 +73,10 @@ app.get('/ping', (req, res) => {
 
 // Authentication Endpoints
 // Health check route
-app.get('/', (req, res) => {
-    res.send('EduReply API is running!');
-});
+// Health check route moved below to avoid conflict with static files
+// app.get('/', (req, res) => {
+//     res.send('EduReply API is running!');
+// });
 
 app.post('/api/register', async (req, res) => {
     try {
@@ -499,6 +501,16 @@ app.post('/api/simulate-email', authenticateToken, async (req, res) => {
         console.error("Simulation error:", error);
         res.status(500).json({ message: "Error during simulation", error: error.message });
     }
+});
+
+// --- Serve Static Files ---
+// Point to the built client files
+const clientDistPath = path.join(__dirname, '../client/dist');
+app.use(express.static(clientDistPath));
+
+// Catch-all route for SPA: any non-API request serves index.html
+app.get('*', (req, res) => {
+    res.sendFile(path.join(clientDistPath, 'index.html'));
 });
 
 app.listen(PORT, () => {
