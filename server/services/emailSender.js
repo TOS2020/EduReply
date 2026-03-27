@@ -56,16 +56,21 @@ async function sendEmail(smtpConfig, to, subject, html, attachments) {
     if (isBrevo) {
         console.log(`[Email] Brevo detected. Using HTTPS API fallback for reliability on Render.`);
         return new Promise((resolve, reject) => {
-            const data = JSON.stringify({
+            const payload = {
                 sender: { email: smtpConfig.user.trim() },
                 to: [{ email: to.trim() }],
                 subject: subject,
-                htmlContent: html,
-                attachment: processedAttachments.map(a => ({
+                htmlContent: html
+            };
+
+            if (processedAttachments.length > 0) {
+                payload.attachment = processedAttachments.map(a => ({
                     content: a.content.toString('base64'),
                     name: a.filename
-                }))
-            });
+                }));
+            }
+
+            const data = JSON.stringify(payload);
 
             const options = {
                 hostname: 'api.brevo.com',
@@ -102,7 +107,7 @@ async function sendEmail(smtpConfig, to, subject, html, attachments) {
     if (isSendGrid) {
         console.log(`[Email] SendGrid detected. Using HTTPS API fallback for reliability on Render.`);
         return new Promise((resolve, reject) => {
-            const data = JSON.stringify({
+            const payload = {
                 personalizations: [{
                     to: [{ email: to.trim() }]
                 }],
@@ -111,14 +116,19 @@ async function sendEmail(smtpConfig, to, subject, html, attachments) {
                 content: [{
                     type: 'text/html',
                     value: html
-                }],
-                attachments: processedAttachments.map(a => ({
+                }]
+            };
+
+            if (processedAttachments.length > 0) {
+                payload.attachments = processedAttachments.map(a => ({
                     content: a.content.toString('base64'),
                     filename: a.filename,
                     type: 'application/octet-stream',
                     disposition: 'attachment'
-                }))
-            });
+                }));
+            }
+
+            const data = JSON.stringify(payload);
 
             const options = {
                 hostname: 'api.sendgrid.com',
