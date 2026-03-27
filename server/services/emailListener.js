@@ -4,24 +4,36 @@ const { User, KnowledgeBase, AuthorizedStudent, Draft } = require('../models/sch
 const { generateEduReply } = require('./aiService');
 require('dotenv').config();
 
-const activeListeners = new Map();
+const activityLogs = new Map(); // userId -> string[]
+
+function logActivity(userId, message) {
+    const logs = activityLogs.get(userId) || [];
+    const timestamp = new Date().toLocaleTimeString();
+    logs.unshift(`[${timestamp}] ${message}`);
+    if (logs.length > 15) logs.pop();
+    activityLogs.set(userId, logs);
+    console.log(`[Email][User:${userId}] ${message}`);
+}
 
 async function processNewEmail(user, mail) {
     try {
         const sender = mail.from?.value?.[0]?.address;
-        if (!sender) return;
+        if (!sender) {
+            logActivity(user.id, "Received email with no sender address. Skipping.");
+            return;
+        }
         const body = mail.text || mail.html;
 
-        console.log(`[Email] User ${user.email} received from: ${sender}`);
+        logActivity(user.id, `New email detected from: ${sender}`);
 
         // Check if sender is authorized for THIS user
-        const authorized = await AuthorizedStudent.findOne({ userId: user.id, email: sender });
+        const authorized = await AuthorizedStudent.findOne({ userId: user.id, email: sender.toLowerCase().trim() });
         if (!authorized) {
-            console.log(`[Email] Sender ${sender} is not authorized for user ${user.email}. Skipping.`);
+            logActivity(user.id, `Skipping: ${sender} is NOT in your Authorized Students list.`);
             return;
         }
 
-        console.log(`[Email] Processing message for user ${user.email} from ${sender}...`);
+        logActivity(user.id, `Processing AI reply for ${sender}...`);
         
         // Use user's knowledge base
         const userKB = await KnowledgeBase.find({ userId: user.id });
@@ -42,9 +54,9 @@ async function processNewEmail(user, mail) {
         });
 
         await newDraft.save();
-        console.log(`[Email] Draft created for ${user.email} from ${sender}`);
+        logActivity(user.id, `Success: Created draft reply for ${sender}. Check your Drafts Review page!`);
     } catch (error) {
-        console.error(`[Email] Error processing email for user ${user.email}:`, error.message);
+        logActivity(user.id, `Error: ${error.message}`);
     }
 }
 
@@ -77,16 +89,16 @@ async function startListenerForUser(user) {
     try {
         await client.connect();
         activeListeners.set(user.id, client);
-        console.log(`[Email] Connected to IMAP for user: ${user.email}`);
+        logActivity(user.id, "Connected to Gmail IMAP server.");
 
         // Open INBOX and stay there
         let lock = await client.getMailboxLock('INBOX');
         try {
             await client.mailboxOpen('INBOX');
-            console.log(`[Email] Monitoring INBOX for user: ${user.email}`);
+            logActivity(user.id, "Monitoring INBOX for new messages...");
             
             client.on('exists', async (data) => {
-                console.log(`[Email] New activity in INBOX for ${user.email}`);
+                logActivity(user.id, `Inbox updated: New message detected (Total: ${data.count})...`);
                 // Re-acquire lock to fetch
                 let fetchLock = await client.getMailboxLock('INBOX');
                 try {
@@ -97,7 +109,7 @@ async function startListenerForUser(user) {
                         await processNewEmail(user, parsed);
                     }
                 } catch (fetchErr) {
-                    console.error(`[Email] Fetch error for ${user.email}:`, fetchErr.message);
+                    logActivity(user.id, `Fetch Error: ${fetchErr.message}`);
                 } finally {
                     fetchLock.release();
                 }
@@ -106,7 +118,7 @@ async function startListenerForUser(user) {
             lock.release();
         }
     } catch (err) {
-        console.error(`[Email] Failed to connect for user ${user.email}:`, err.message);
+        logActivity(user.id, `Connection Failed: ${err.message}`);
         // Clean up on failure
         activeListeners.delete(user.id);
     }
@@ -117,11 +129,11 @@ async function stopListenerForUser(userId) {
     if (client) {
         try {
             await client.logout();
+            logActivity(userId, "Logged out from IMAP.");
         } catch (e) {
-            console.error(`[Email] Error during IMAP logout for ${userId}:`, e.message);
+            logActivity(userId, `Logout Error: ${e.message}`);
         }
         activeListeners.delete(userId);
-        console.log(`[Email] Stopped listener for user ID: ${userId}`);
     }
 }
 
@@ -138,5 +150,5 @@ async function startEmailListener() {
     }
 }
 
-module.exports = { startEmailListener, startListenerForUser, stopListenerForUser, activeListeners };
+module.exports = { startEmailListener, startListenerForUser, stopListenerForUser, activeListeners, activityLogs };
 

@@ -12,6 +12,7 @@ export default function Settings() {
     const [isTesting, setIsTesting] = useState(false);
     const [isTestingImap, setIsTestingImap] = useState(false);
     const [isSyncActive, setIsSyncActive] = useState(false);
+    const [logs, setLogs] = useState<string[]>([]);
 
     useEffect(() => {
         if (!token) return;
@@ -38,10 +39,17 @@ export default function Settings() {
             .then(res => res.json())
             .then(data => setIsSyncActive(data.isActive))
             .catch(() => setIsSyncActive(false));
+
+            fetch(`${API_BASE_URL}/api/user/activity-logs`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            })
+            .then(res => res.json())
+            .then(data => setLogs(data.logs || []))
+            .catch(() => {});
         };
 
         checkStatus();
-        const interval = setInterval(checkStatus, 10000);
+        const interval = setInterval(checkStatus, 5000);
         return () => clearInterval(interval);
     }, [token]);
 
@@ -246,6 +254,38 @@ export default function Settings() {
                     <button type="submit" disabled={isSaving || isTesting || isTestingImap} className="btn btn-blue" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.75rem 2rem' }}>
                         {isSaving ? 'Saving...' : <><Save size={18} /> Save Settings</>}
                     </button>
+                <div className="card" style={{ background: 'rgba(15, 23, 42, 0.6)' }}>
+                    <h2 style={{ marginBottom: '1rem', fontSize: '1.1rem', color: 'var(--text-secondary)' }}>Live Activity Log</h2>
+                    <div style={{ 
+                        height: '200px', 
+                        overflowY: 'auto', 
+                        background: 'rgba(0, 0, 0, 0.2)', 
+                        borderRadius: '0.5rem', 
+                        padding: '1rem',
+                        fontFamily: 'monospace',
+                        fontSize: '0.85rem',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '0.5rem'
+                    }}>
+                        {logs.length > 0 ? logs.map((log, i) => (
+                            <div key={i} style={{ 
+                                color: log.includes('Error') || log.includes('Failed') ? '#ef4444' : 
+                                       log.includes('Success') ? '#10b981' : 
+                                       log.includes('Skipping') ? '#f59e0b' : 'var(--text-secondary)',
+                                borderLeft: `2px solid ${
+                                    log.includes('Error') || log.includes('Failed') ? '#ef4444' : 
+                                    log.includes('Success') ? '#10b981' : 
+                                    log.includes('Skipping') ? '#f59e0b' : 'rgba(255,255,255,0.1)'
+                                }`,
+                                paddingLeft: '0.75rem'
+                            }}>
+                                {log}
+                            </div>
+                        )) : (
+                            <div style={{ color: 'var(--text-muted)' }}>No logs yet... Send a test email!</div>
+                        )}
+                    </div>
                 </div>
             </form>
         </div>

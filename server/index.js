@@ -155,6 +155,16 @@ app.get('/api/user/imap-status', authenticateToken, async (req, res) => {
     }
 });
 
+app.get('/api/user/activity-logs', authenticateToken, async (req, res) => {
+    try {
+        const { activityLogs } = require('./services/emailListener');
+        const logs = activityLogs.get(req.user.id) || ["No recent activity detected."];
+        res.json({ logs });
+    } catch (error) {
+        res.json({ logs: ["System error fetching logs."] });
+    }
+});
+
 app.post('/api/user/settings', authenticateToken, async (req, res) => {
     try {
         const user = await User.findOne({ id: req.user.id });
