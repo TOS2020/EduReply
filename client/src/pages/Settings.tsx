@@ -132,8 +132,10 @@ export default function Settings() {
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                 <label style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>App Password / API Key</label>
-                                {smtp.host.includes('brevo.com') && (
-                                    <span style={{ fontSize: '0.75rem', color: 'var(--accent-blue)' }}>Use v3 API Key (xkeysib-...)</span>
+                                {(smtp.host.includes('brevo.com') || smtp.host.includes('sendgrid.net')) && (
+                                    <span style={{ fontSize: '0.75rem', color: 'var(--accent-blue)' }}>
+                                        {smtp.host.includes('brevo.com') ? 'Use v3 API Key (xkeysib-...)' : 'Use API Key (SG....)'}
+                                    </span>
                                 )}
                             </div>
                             <input className="input" type="password" value={smtp.pass} onChange={e => setSmtp({...smtp, pass: e.target.value})} placeholder="•••• •••• •••• ••••" />

@@ -29,6 +29,7 @@ async function sendEmail(smtpConfig, to, subject, html, attachments) {
     }
 
     const isBrevo = smtpConfig.host && smtpConfig.host.includes('brevo.com');
+    const isSendGrid = smtpConfig.host && smtpConfig.host.includes('sendgrid.net');
 
     // Manually download attachments if they are URLs
     const processedAttachments = [];
@@ -88,6 +89,59 @@ async function sendEmail(smtpConfig, to, subject, html, attachments) {
                     } else {
                         console.error('[Email] Brevo API Error:', body);
                         reject(new Error(`Brevo API Error: ${res.statusCode} - ${body}`));
+                    }
+                });
+            });
+
+            req.on('error', (e) => reject(e));
+            req.write(data);
+            req.end();
+        });
+    }
+
+    if (isSendGrid) {
+        console.log(`[Email] SendGrid detected. Using HTTPS API fallback for reliability on Render.`);
+        return new Promise((resolve, reject) => {
+            const data = JSON.stringify({
+                personalizations: [{
+                    to: [{ email: to.trim() }]
+                }],
+                from: { email: smtpConfig.user.trim() },
+                subject: subject,
+                content: [{
+                    type: 'text/html',
+                    value: html
+                }],
+                attachments: processedAttachments.map(a => ({
+                    content: a.content.toString('base64'),
+                    filename: a.filename,
+                    type: 'application/octet-stream',
+                    disposition: 'attachment'
+                }))
+            });
+
+            const options = {
+                hostname: 'api.sendgrid.com',
+                port: 443,
+                path: '/v3/mail/send',
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${smtpConfig.pass.trim()}`,
+                    'Content-Type': 'application/json',
+                    'Content-Length': data.length
+                }
+            };
+
+            const req = https.request(options, (res) => {
+                let body = '';
+                res.on('data', (d) => body += d);
+                res.on('end', () => {
+                    if (res.statusCode < 300) {
+                        console.log('[Email] Sent successfully via SendGrid API');
+                        resolve({ success: true });
+                    } else {
+                        console.error('[Email] SendGrid API Error:', body);
+                        reject(new Error(`SendGrid API Error: ${res.statusCode} - ${body}`));
                     }
                 });
             });
