@@ -151,7 +151,14 @@ async function sendEmail(smtpConfig, to, subject, html, attachments) {
                         resolve({ success: true });
                     } else {
                         console.error('[Email] SendGrid API Error:', body);
-                        reject(new Error(`SendGrid API Error: ${res.statusCode} - ${body}`));
+                        let errorMessage = body;
+                        try {
+                            const parsed = JSON.parse(body);
+                            if (parsed.errors && parsed.errors[0]) {
+                                errorMessage = parsed.errors[0].message;
+                            }
+                        } catch (e) {}
+                        reject(new Error(`SendGrid Error: ${errorMessage}`));
                     }
                 });
             });
