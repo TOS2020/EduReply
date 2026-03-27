@@ -79,19 +79,36 @@ async function startListenerForUser(user) {
         activeListeners.set(user.id, client);
         console.log(`[Email] Connected to IMAP for user: ${user.email}`);
 
+        // Open INBOX and stay there
         let lock = await client.getMailboxLock('INBOX');
         try {
-            client.on('exists', async (data) => {
-                let message = await client.fetchOne(data.count, { source: true });
-                let parsed = await simpleParser(message.source);
-                await processNewEmail(user, parsed);
-            });
+            await client.mailboxOpen('INBOX');
             console.log(`[Email] Monitoring INBOX for user: ${user.email}`);
+            
+            client.on('exists', async (data) => {
+                console.log(`[Email] New activity in INBOX for ${user.email}`);
+                // Re-acquire lock to fetch
+                let fetchLock = await client.getMailboxLock('INBOX');
+                try {
+                    // Fetch the latest message
+                    let message = await client.fetchOne(data.count, { source: true });
+                    if (message) {
+                        let parsed = await simpleParser(message.source);
+                        await processNewEmail(user, parsed);
+                    }
+                } catch (fetchErr) {
+                    console.error(`[Email] Fetch error for ${user.email}:`, fetchErr.message);
+                } finally {
+                    fetchLock.release();
+                }
+            });
         } finally {
             lock.release();
         }
     } catch (err) {
         console.error(`[Email] Failed to connect for user ${user.email}:`, err.message);
+        // Clean up on failure
+        activeListeners.delete(user.id);
     }
 }
 

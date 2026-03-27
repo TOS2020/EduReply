@@ -474,6 +474,35 @@ app.post('/api/test-email-connection', authenticateToken, async (req, res) => {
     }
 });
 
+// Test IMAP Connection
+app.post('/api/test-imap-connection', authenticateToken, async (req, res) => {
+    try {
+        const user = await User.findOne({ id: req.user.id });
+        if (!user || !user.emailConfig || !user.emailConfig.imap || !user.emailConfig.imap.user) {
+            return res.status(400).json({ message: "IMAP configuration missing." });
+        }
+
+        const { ImapFlow } = require('imapflow');
+        const client = new ImapFlow({
+            host: user.emailConfig.imap.host || 'imap.gmail.com',
+            port: parseInt(user.emailConfig.imap.port) || 993,
+            secure: true,
+            auth: {
+                user: user.emailConfig.imap.user,
+                pass: user.emailConfig.imap.pass
+            },
+            logger: false
+        });
+
+        await client.connect();
+        await client.logout();
+        res.json({ success: true, message: "IMAP Connection Verified Successfully!" });
+    } catch (err) {
+        console.error("[Test] IMAP Verification failed:", err);
+        res.status(500).json({ success: false, message: `IMAP Error: ${err.message}` });
+    }
+});
+
 // Email Simulation Trigger
 app.post('/api/simulate-email', authenticateToken, async (req, res) => {
     try {

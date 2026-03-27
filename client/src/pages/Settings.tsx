@@ -10,6 +10,7 @@ export default function Settings() {
     const [status, setStatus] = useState<{ type: 'success' | 'error', message: string } | null>(null);
     const [isSaving, setIsSaving] = useState(false);
     const [isTesting, setIsTesting] = useState(false);
+    const [isTestingImap, setIsTestingImap] = useState(false);
 
     useEffect(() => {
         if (!token) return;
@@ -82,6 +83,33 @@ export default function Settings() {
             setStatus({ type: 'error', message: 'Testing failed. Server might be unreachable.' });
         } finally {
             setIsTesting(false);
+        }
+    };
+
+    const handleTestImapConnection = async () => {
+        if (!token) return;
+        setIsTestingImap(true);
+        setStatus(null);
+        
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/test-imap-connection`, {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            
+            const data = await response.json();
+            if (response.ok && data.success) {
+                setStatus({ type: 'success', message: 'IMAP Connection Verified Successfully!' });
+            } else {
+                setStatus({ type: 'error', message: `IMAP Test Failed: ${data.message || 'Unknown error'}` });
+            }
+        } catch (err) {
+            setStatus({ type: 'error', message: 'Testing failed. Server might be unreachable.' });
+        } finally {
+            setIsTestingImap(false);
         }
     };
 
@@ -168,11 +196,14 @@ export default function Settings() {
                     </div>
                 </div>
 
-                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem' }}>
-                    <button type="button" onClick={handleTestConnection} disabled={isTesting || isSaving} className="btn" style={{ background: 'rgba(56, 189, 248, 0.1)', color: 'var(--accent-blue)', padding: '0.75rem 1.5rem', border: '1px solid rgba(56, 189, 248, 0.2)' }}>
+                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem', flexWrap: 'wrap' }}>
+                    <button type="button" onClick={handleTestConnection} disabled={isTesting || isTestingImap || isSaving} className="btn" style={{ background: 'rgba(56, 189, 248, 0.1)', color: 'var(--accent-blue)', padding: '0.75rem 1.5rem', border: '1px solid rgba(56, 189, 248, 0.2)' }}>
                         {isTesting ? 'Testing...' : 'Test SMTP Connection'}
                     </button>
-                    <button type="submit" disabled={isSaving || isTesting} className="btn btn-blue" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.75rem 2rem' }}>
+                    <button type="button" onClick={handleTestImapConnection} disabled={isTesting || isTestingImap || isSaving} className="btn" style={{ background: 'rgba(16, 185, 129, 0.1)', color: 'var(--accent-green)', padding: '0.75rem 1.5rem', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
+                        {isTestingImap ? 'Testing...' : 'Test IMAP Connection'}
+                    </button>
+                    <button type="submit" disabled={isSaving || isTesting || isTestingImap} className="btn btn-blue" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.75rem 2rem' }}>
                         {isSaving ? 'Saving...' : <><Save size={18} /> Save Settings</>}
                     </button>
                 </div>
