@@ -11,6 +11,7 @@ export default function Settings() {
     const [isSaving, setIsSaving] = useState(false);
     const [isTesting, setIsTesting] = useState(false);
     const [isTestingImap, setIsTestingImap] = useState(false);
+    const [isSyncActive, setIsSyncActive] = useState(false);
 
     useEffect(() => {
         if (!token) return;
@@ -25,6 +26,23 @@ export default function Settings() {
             }
         })
         .catch(err => console.error("Failed to load settings:", err));
+    }, [token]);
+
+    useEffect(() => {
+        if (!token) return;
+        
+        const checkStatus = () => {
+            fetch(`${API_BASE_URL}/api/user/imap-status`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            })
+            .then(res => res.json())
+            .then(data => setIsSyncActive(data.isActive))
+            .catch(() => setIsSyncActive(false));
+        };
+
+        checkStatus();
+        const interval = setInterval(checkStatus, 10000);
+        return () => clearInterval(interval);
     }, [token]);
 
     const handleSave = async (e: React.FormEvent) => {
@@ -173,9 +191,31 @@ export default function Settings() {
 
                 {/* IMAP Settings */}
                 <div className="card">
-                    <h2 style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.75rem', color: 'var(--accent-green)' }}>
-                        <Shield size={20} /> IMAP (Receiving)
-                    </h2>
+                    <div style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <h2 style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', color: 'var(--accent-green)', margin: 0 }}>
+                            <Shield size={20} /> IMAP (Receiving)
+                        </h2>
+                        <div style={{ 
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            gap: '0.5rem', 
+                            fontSize: '0.85rem',
+                            padding: '0.35rem 0.75rem',
+                            borderRadius: '1rem',
+                            background: isSyncActive ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)',
+                            color: isSyncActive ? '#10b981' : '#ef4444',
+                            border: `1px solid ${isSyncActive ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)'}`
+                        }}>
+                            <div style={{ 
+                                width: '8px', 
+                                height: '8px', 
+                                borderRadius: '50%', 
+                                background: 'currentColor',
+                                animation: isSyncActive ? 'pulse 2s infinite' : 'none'
+                            }} />
+                            {isSyncActive ? 'Real-time Sync Active' : 'Sync Offline'}
+                        </div>
+                    </div>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                             <label style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>IMAP Host</label>

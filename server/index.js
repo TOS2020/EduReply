@@ -145,6 +145,16 @@ app.get('/api/user/settings', authenticateToken, async (req, res) => {
     }
 });
 
+app.get('/api/user/imap-status', authenticateToken, async (req, res) => {
+    try {
+        const { activeListeners } = require('./services/emailListener');
+        const isActive = activeListeners.has(req.user.id);
+        res.json({ isActive });
+    } catch (error) {
+        res.status(500).json({ isActive: false });
+    }
+});
+
 app.post('/api/user/settings', authenticateToken, async (req, res) => {
     try {
         const user = await User.findOne({ id: req.user.id });

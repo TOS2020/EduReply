@@ -138,5 +138,5 @@ async function startEmailListener() {
     }
 }
 
-module.exports = { startEmailListener, startListenerForUser, stopListenerForUser };
+module.exports = { startEmailListener, startListenerForUser, stopListenerForUser, activeListeners };
 
