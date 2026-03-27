@@ -56,8 +56,8 @@ async function sendEmail(smtpConfig, to, subject, html, attachments) {
         console.log(`[Email] Brevo detected. Using HTTPS API fallback for reliability on Render.`);
         return new Promise((resolve, reject) => {
             const data = JSON.stringify({
-                sender: { email: smtpConfig.user },
-                to: [{ email: to }],
+                sender: { email: smtpConfig.user.trim() },
+                to: [{ email: to.trim() }],
                 subject: subject,
                 htmlContent: html,
                 attachment: processedAttachments.map(a => ({
@@ -72,7 +72,7 @@ async function sendEmail(smtpConfig, to, subject, html, attachments) {
                 path: '/v3/smtp/email',
                 method: 'POST',
                 headers: {
-                    'api-key': smtpConfig.pass,
+                    'api-key': smtpConfig.pass.trim(),
                     'Content-Type': 'application/json',
                     'Content-Length': data.length
                 }
