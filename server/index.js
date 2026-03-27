@@ -248,9 +248,10 @@ app.get('/api/authorized-students', authenticateToken, async (req, res) => {
 
 app.post('/api/authorized-students', authenticateToken, async (req, res) => {
     try {
-        const newStudent = new AuthorizedStudent({ email: req.body.email, userId: req.user.id });
+        const email = req.body.email?.toLowerCase().trim();
+        const newStudent = new AuthorizedStudent({ email, userId: req.user.id });
         await newStudent.save();
-        res.status(201).json(req.body);
+        res.status(201).json({ email });
     } catch (error) {
         res.status(500).json({ message: "Error adding student", error: error.message });
     }
@@ -263,7 +264,8 @@ app.put('/api/authorized-students/:index', authenticateToken, async (req, res) =
         
         if (index >= 0 && index < userStudents.length) {
             const studentId = userStudents[index]._id;
-            const updated = await AuthorizedStudent.findByIdAndUpdate(studentId, { email: req.body.email }, { new: true });
+            const email = req.body.email?.toLowerCase().trim();
+            const updated = await AuthorizedStudent.findByIdAndUpdate(studentId, { email }, { new: true });
             res.json({ email: updated.email });
         } else {
             res.status(404).json({ message: "Student not found" });
