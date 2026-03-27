@@ -130,7 +130,12 @@ export default function Settings() {
                             <input className="input" value={smtp.user} onChange={e => setSmtp({...smtp, user: e.target.value})} placeholder="your-email@gmail.com" />
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                            <label style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>App Password</label>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <label style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>App Password / API Key</label>
+                                {smtp.host.includes('brevo.com') && (
+                                    <span style={{ fontSize: '0.75rem', color: 'var(--accent-blue)' }}>Use v3 API Key (xkeysib-...)</span>
+                                )}
+                            </div>
                             <input className="input" type="password" value={smtp.pass} onChange={e => setSmtp({...smtp, pass: e.target.value})} placeholder="•••• •••• •••• ••••" />
                         </div>
                     </div>
