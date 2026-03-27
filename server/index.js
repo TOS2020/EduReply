@@ -441,11 +441,13 @@ app.post('/api/test-email-connection', authenticateToken, async (req, res) => {
         console.log(`[Test] Verifying connection for ${user.email}...`);
         
         const isBrevo = user.emailConfig.smtp.host && user.emailConfig.smtp.host.includes('brevo.com');
+        const isSendGrid = user.emailConfig.smtp.host && user.emailConfig.smtp.host.includes('sendgrid.net');
         
-        if (isBrevo) {
-            // For Brevo, we perform a real small test email to verify the API Key
-            await sendEmail(user.emailConfig.smtp, user.email, "EduReply: SMTP Test", "Your Brevo API connection is working correctly!", []);
-            res.json({ success: true, message: "Brevo API Connection Verified! (Test email sent to your inbox)" });
+        if (isBrevo || isSendGrid) {
+            // For API-based senders, we perform a real small test email to verify the API Key
+            const provider = isBrevo ? "Brevo" : "SendGrid";
+            await sendEmail(user.emailConfig.smtp, user.email, `EduReply: ${provider} Test`, `Your ${provider} API connection is working correctly!`, []);
+            res.json({ success: true, message: `${provider} API Connection Verified! (Test email sent to your inbox)` });
         } else {
             const nodemailer = require('nodemailer');
             const transporter = nodemailer.createTransport({
