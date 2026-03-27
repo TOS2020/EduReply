@@ -17,7 +17,7 @@ const MONGODB_URI = uriMatch ? uriMatch[1] : rawUri.trim();
 
 const { User, KnowledgeBase, AuthorizedStudent, Draft } = require('./models/schemas');
 const { generateEduReply } = require('./services/aiService');
-const { startEmailListener, startListenerForUser } = require('./services/emailListener');
+const { startEmailListener, startListenerForUser, logActivity } = require('./services/emailListener');
 const { sendEmail } = require('./services/emailSender');
 
 let lastDbError = null;
@@ -522,6 +522,30 @@ app.post('/api/test-imap-connection', authenticateToken, async (req, res) => {
     } catch (err) {
         console.error("[Test] IMAP Verification failed:", err);
         res.status(500).json({ success: false, message: `IMAP Error: ${err.message}` });
+    }
+});
+
+app.post('/api/test-end-to-end', authenticateToken, async (req, res) => {
+    try {
+        const user = await User.findOne({ id: req.user.id });
+        if (!user) return res.status(404).json({ message: "User not found" });
+
+        const testSubject = `EduReply E2E Test [${Date.now()}]`;
+        const testBody = "This is a diagnostic email to verify the connection loop. If you see this in your inbox AND a corresponding log in EduReply, the system is working perfectly.";
+
+        logActivity(user.id, `Starting End-to-End test... Sending email to ${user.email}`);
+
+        await sendEmail({
+            to: user.email,
+            subject: testSubject,
+            text: testBody,
+            user: user
+        });
+
+        res.json({ success: true, message: `Test email sent to ${user.email}. Please wait a moment and check the Live Activity Log below.` });
+    } catch (err) {
+        console.error("[Test] E2E failed:", err);
+        res.status(500).json({ success: false, message: err.message });
     }
 });
 

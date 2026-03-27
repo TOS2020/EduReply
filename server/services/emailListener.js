@@ -97,6 +97,20 @@ async function startListenerForUser(user) {
             await client.mailboxOpen('INBOX');
             logActivity(user.id, "Monitoring INBOX for new messages...");
             
+            // Proactive: Fetch the latest 3 messages immediately on startup
+            const status = await client.status('INBOX', { messages: true });
+            if (status.messages > 0) {
+                const count = Math.min(3, status.messages);
+                logActivity(user.id, `Startup: Checking last ${count} messages...`);
+                for (let i = 0; i < count; i++) {
+                    const message = await client.fetchOne(status.messages - i, { source: true });
+                    if (message) {
+                        const parsed = await simpleParser(message.source);
+                        await processNewEmail(user, parsed);
+                    }
+                }
+            }
+            
             client.on('exists', async (data) => {
                 logActivity(user.id, `Inbox updated: New message detected (Total: ${data.count})...`);
                 // Re-acquire lock to fetch

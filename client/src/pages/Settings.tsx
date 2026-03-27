@@ -11,6 +11,7 @@ export default function Settings() {
     const [isSaving, setIsSaving] = useState(false);
     const [isTesting, setIsTesting] = useState(false);
     const [isTestingImap, setIsTestingImap] = useState(false);
+    const [isTestingE2E, setIsTestingE2E] = useState(false);
     const [isSyncActive, setIsSyncActive] = useState(false);
     const [logs, setLogs] = useState<string[]>([]);
 
@@ -118,7 +119,35 @@ export default function Settings() {
         setStatus(null);
         
         try {
-            const response = await fetch(`${API_BASE_URL}/api/test-imap-connection`, {
+            const response = await fetch(`${API_BASE_URL}/api/user/test-imap`, {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(imap)
+            });
+            
+            const data = await response.json();
+            if (response.ok && data.success) {
+                setStatus({ type: 'success', message: 'IMAP Connection Successful!' });
+            } else {
+                setStatus({ type: 'error', message: `IMAP Error: ${data.message || 'Unknown error'}` });
+            }
+        } catch (err) {
+            setStatus({ type: 'error', message: 'Testing failed. Server might be unreachable.' });
+        } finally {
+            setIsTestingImap(false);
+        }
+    };
+
+    const handleTestEndToEnd = async () => {
+        if (!token) return;
+        setIsTestingE2E(true);
+        setStatus(null);
+        
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/test-end-to-end`, {
                 method: 'POST',
                 headers: { 
                     'Content-Type': 'application/json',
@@ -128,14 +157,14 @@ export default function Settings() {
             
             const data = await response.json();
             if (response.ok && data.success) {
-                setStatus({ type: 'success', message: 'IMAP Connection Verified Successfully!' });
+                setStatus({ type: 'success', message: data.message });
             } else {
-                setStatus({ type: 'error', message: `IMAP Test Failed: ${data.message || 'Unknown error'}` });
+                setStatus({ type: 'error', message: `E2E Test Failed: ${data.message || 'Unknown error'}` });
             }
         } catch (err) {
             setStatus({ type: 'error', message: 'Testing failed. Server might be unreachable.' });
         } finally {
-            setIsTestingImap(false);
+            setIsTestingE2E(false);
         }
     };
 
@@ -245,13 +274,16 @@ export default function Settings() {
                 </div>
 
                 <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem', flexWrap: 'wrap' }}>
-                    <button type="button" onClick={handleTestConnection} disabled={isTesting || isTestingImap || isSaving} className="btn" style={{ background: 'rgba(56, 189, 248, 0.1)', color: 'var(--accent-blue)', padding: '0.75rem 1.5rem', border: '1px solid rgba(56, 189, 248, 0.2)' }}>
+                    <button type="button" onClick={handleTestEndToEnd} disabled={isTesting || isTestingImap || isTestingE2E || isSaving} className="btn" style={{ background: 'rgba(168, 85, 247, 0.1)', color: '#a855f7', padding: '0.75rem 1.5rem', border: '1px solid rgba(168, 85, 247, 0.2)' }}>
+                        {isTestingE2E ? 'Sending Test...' : 'Run End-to-End Test'}
+                    </button>
+                    <button type="button" onClick={handleTestConnection} disabled={isTesting || isTestingImap || isTestingE2E || isSaving} className="btn" style={{ background: 'rgba(56, 189, 248, 0.1)', color: 'var(--accent-blue)', padding: '0.75rem 1.5rem', border: '1px solid rgba(56, 189, 248, 0.2)' }}>
                         {isTesting ? 'Testing...' : 'Test SMTP Connection'}
                     </button>
-                    <button type="button" onClick={handleTestImapConnection} disabled={isTesting || isTestingImap || isSaving} className="btn" style={{ background: 'rgba(16, 185, 129, 0.1)', color: 'var(--accent-green)', padding: '0.75rem 1.5rem', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
+                    <button type="button" onClick={handleTestImapConnection} disabled={isTesting || isTestingImap || isTestingE2E || isSaving} className="btn" style={{ background: 'rgba(16, 185, 129, 0.1)', color: 'var(--accent-green)', padding: '0.75rem 1.5rem', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
                         {isTestingImap ? 'Testing...' : 'Test IMAP Connection'}
                     </button>
-                    <button type="submit" disabled={isSaving || isTesting || isTestingImap} className="btn btn-blue" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.75rem 2rem' }}>
+                    <button type="submit" disabled={isSaving || isTesting || isTestingImap || isTestingE2E} className="btn btn-blue" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.75rem 2rem' }}>
                         {isSaving ? 'Saving...' : <><Save size={18} /> Save Settings</>}
                     </button>
                 <div className="card" style={{ background: 'rgba(15, 23, 42, 0.6)' }}>
