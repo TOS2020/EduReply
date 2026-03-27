@@ -438,32 +438,37 @@ app.post('/api/test-email-connection', authenticateToken, async (req, res) => {
             return res.status(400).json({ message: "Email configuration missing." });
         }
 
-        const nodemailer = require('nodemailer');
-        const transporter = nodemailer.createTransport({
-            host: user.emailConfig.smtp.host || 'smtp.gmail.com',
-            port: parseInt(user.emailConfig.smtp.port) || 465,
-            secure: parseInt(user.emailConfig.smtp.port) === 465,
-            auth: {
-                user: user.emailConfig.smtp.user,
-                pass: user.emailConfig.smtp.pass
-            },
-            tls: {
-                rejectUnauthorized: false
-            },
-            connectionTimeout: 30000,
-            greetingTimeout: 30000,
-            socketTimeout: 60000,
-            logger: true,
-            debug: true
-        });
-
-
-        console.log(`[Test] Verifying SMTP connection for ${user.email}...`);
-        await transporter.verify();
-        res.json({ success: true, message: "SMTP Connection Verified!" });
+        console.log(`[Test] Verifying connection for ${user.email}...`);
+        
+        const isBrevo = user.emailConfig.smtp.host && user.emailConfig.smtp.host.includes('brevo.com');
+        
+        if (isBrevo) {
+            // For Brevo, we perform a real small test email to verify the API Key
+            await sendEmail(user.emailConfig.smtp, user.email, "EduReply: SMTP Test", "Your Brevo API connection is working correctly!", []);
+            res.json({ success: true, message: "Brevo API Connection Verified! (Test email sent to your inbox)" });
+        } else {
+            const nodemailer = require('nodemailer');
+            const transporter = nodemailer.createTransport({
+                host: user.emailConfig.smtp.host || 'smtp.gmail.com',
+                port: parseInt(user.emailConfig.smtp.port) || 465,
+                secure: parseInt(user.emailConfig.smtp.port) === 465,
+                auth: {
+                    user: user.emailConfig.smtp.user,
+                    pass: user.emailConfig.smtp.pass
+                },
+                tls: { rejectUnauthorized: false },
+                connectionTimeout: 30000,
+                greetingTimeout: 30000,
+                socketTimeout: 60000,
+                logger: true,
+                debug: true
+            });
+            await transporter.verify();
+            res.json({ success: true, message: "SMTP Connection Verified!" });
+        }
     } catch (err) {
-        console.error("[Test] SMTP Verification failed:", err);
-        res.status(500).json({ success: false, message: err.message, stack: err.stack });
+        console.error("[Test] Verification failed:", err);
+        res.status(500).json({ success: false, message: err.message });
     }
 });
 

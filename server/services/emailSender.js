@@ -28,29 +28,9 @@ async function sendEmail(smtpConfig, to, subject, html, attachments) {
         throw new Error('User email credentials not configured');
     }
 
-    console.log(`[Email] Connecting to SMTP: ${smtpConfig.host || 'smtp.gmail.com'}:${parseInt(smtpConfig.port) || 465} (Secure: ${parseInt(smtpConfig.port) === 465})`);
-    
-    const transporter = nodemailer.createTransport({
-        host: smtpConfig.host || 'smtp.gmail.com',
-        port: parseInt(smtpConfig.port) || 465,
-        secure: parseInt(smtpConfig.port) === 465,
-        auth: {
-            user: smtpConfig.user,
-            pass: smtpConfig.pass
-        },
-        tls: {
-            rejectUnauthorized: false
-        },
-        connectionTimeout: 30000,
-        greetingTimeout: 30000,
-        socketTimeout: 60000,
-        logger: true,
-        debug: true
-    });
+    const isBrevo = smtpConfig.host && smtpConfig.host.includes('brevo.com');
 
-
-
-    // Manually download attachments if they are URLs to provide custom headers (avoid 403)
+    // Manually download attachments if they are URLs
     const processedAttachments = [];
     if (attachments && attachments.length > 0) {
         for (const attr of attachments) {
@@ -71,6 +51,72 @@ async function sendEmail(smtpConfig, to, subject, html, attachments) {
             }
         }
     }
+
+    if (isBrevo) {
+        console.log(`[Email] Brevo detected. Using HTTPS API fallback for reliability on Render.`);
+        return new Promise((resolve, reject) => {
+            const data = JSON.stringify({
+                sender: { email: smtpConfig.user },
+                to: [{ email: to }],
+                subject: subject,
+                htmlContent: html,
+                attachment: processedAttachments.map(a => ({
+                    content: a.content.toString('base64'),
+                    name: a.filename
+                }))
+            });
+
+            const options = {
+                hostname: 'api.brevo.com',
+                port: 443,
+                path: '/v3/smtp/email',
+                method: 'POST',
+                headers: {
+                    'api-key': smtpConfig.pass,
+                    'Content-Type': 'application/json',
+                    'Content-Length': data.length
+                }
+            };
+
+            const req = https.request(options, (res) => {
+                let body = '';
+                res.on('data', (d) => body += d);
+                res.on('end', () => {
+                    if (res.statusCode < 300) {
+                        console.log('[Email] Sent successfully via Brevo API');
+                        resolve({ messageId: JSON.parse(body).messageId });
+                    } else {
+                        console.error('[Email] Brevo API Error:', body);
+                        reject(new Error(`Brevo API Error: ${res.statusCode} - ${body}`));
+                    }
+                });
+            });
+
+            req.on('error', (e) => reject(e));
+            req.write(data);
+            req.end();
+        });
+    }
+
+    console.log(`[Email] Connecting to SMTP: ${smtpConfig.host || 'smtp.gmail.com'}:${parseInt(smtpConfig.port) || 465}`);
+    
+    const transporter = nodemailer.createTransport({
+        host: smtpConfig.host || 'smtp.gmail.com',
+        port: parseInt(smtpConfig.port) || 465,
+        secure: parseInt(smtpConfig.port) === 465,
+        auth: {
+            user: smtpConfig.user,
+            pass: smtpConfig.pass
+        },
+        tls: {
+            rejectUnauthorized: false
+        },
+        connectionTimeout: 30000,
+        greetingTimeout: 30000,
+        socketTimeout: 60000,
+        logger: true,
+        debug: true
+    });
 
     const mailOptions = {
         from: smtpConfig.user,
