@@ -165,6 +165,18 @@ app.get('/api/user/activity-logs', authenticateToken, async (req, res) => {
     }
 });
 
+app.post('/api/user/refresh-sync', authenticateToken, async (req, res) => {
+    try {
+        const user = await User.findOne({ id: req.user.id });
+        const { startListenerForUser, stopListenerForUser } = require('./services/emailListener');
+        await stopListenerForUser(user.id);
+        await startListenerForUser(user);
+        res.json({ success: true, message: "Manual sync triggered. Checking for newest emails..." });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
 app.post('/api/user/settings', authenticateToken, async (req, res) => {
     try {
         const user = await User.findOne({ id: req.user.id });

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { BookOpen, Key, Info, Edit2, Save, X, Trash2 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
+import { API_BASE_URL } from '../config'
 
 interface KnowledgeItem {
     keyword: string
@@ -19,7 +20,7 @@ export default function KnowledgeBase() {
 
     useEffect(() => {
         if (!token) return;
-        fetch('https://edureply.onrender.com/api/knowledge-base', {
+        fetch(`${API_BASE_URL}/api/knowledge-base`, {
             headers: { 'Authorization': `Bearer ${token}` }
         })
             .then(res => res.json())
@@ -28,7 +29,7 @@ export default function KnowledgeBase() {
 
     const handleAdd = () => {
         if (!newKeyword || !newDetails || !token) return
-        fetch('https://edureply.onrender.com/api/knowledge-base', {
+        fetch(`${API_BASE_URL}/api/knowledge-base`, {
             method: 'POST',
             headers: { 
                 'Content-Type': 'application/json',
@@ -54,7 +55,7 @@ export default function KnowledgeBase() {
 
     const handleSaveEdit = (index: number) => {
         if (!editKey || !editValue || !token) return
-        fetch(`https://edureply.onrender.com/api/knowledge-base/${index}`, {
+        fetch(`${API_BASE_URL}/api/knowledge-base/${index}`, {
             method: 'PUT',
             headers: { 
                 'Content-Type': 'application/json',
@@ -71,7 +72,7 @@ export default function KnowledgeBase() {
 
     const handleDelete = (index: number) => {
         if (!confirm('Are you sure you want to delete this entry?') || !token) return
-        fetch(`https://edureply.onrender.com/api/knowledge-base/${index}`, {
+        fetch(`${API_BASE_URL}/api/knowledge-base/${index}`, {
             method: 'DELETE',
             headers: { 'Authorization': `Bearer ${token}` }
         }).then(() => {
@@ -79,6 +80,7 @@ export default function KnowledgeBase() {
             setKnowledge(newKnowledge)
         })
     }
+
 
     return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>

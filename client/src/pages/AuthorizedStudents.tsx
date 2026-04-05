@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { UserPlus, CheckCircle, Mail, Edit2, Trash2, Save, X } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
+import { API_BASE_URL } from '../config'
 
 export default function AuthorizedStudents() {
     const { token } = useAuth()
@@ -12,7 +13,7 @@ export default function AuthorizedStudents() {
 
     useEffect(() => {
         if (!token) return;
-        fetch('https://edureply.onrender.com/api/authorized-students', {
+        fetch(`${API_BASE_URL}/api/authorized-students`, {
             headers: { 'Authorization': `Bearer ${token}` }
         })
             .then(res => res.json())
@@ -21,7 +22,7 @@ export default function AuthorizedStudents() {
 
     const handleAdd = () => {
         if (!newEmail || !token) return
-        fetch('https://edureply.onrender.com/api/authorized-students', {
+        fetch(`${API_BASE_URL}/api/authorized-students`, {
             method: 'POST',
             headers: { 
                 'Content-Type': 'application/json',
@@ -45,7 +46,7 @@ export default function AuthorizedStudents() {
 
     const handleSaveEdit = (index: number) => {
         if (!editEmail || !token) return
-        fetch(`https://edureply.onrender.com/api/authorized-students/${index}`, {
+        fetch(`${API_BASE_URL}/api/authorized-students/${index}`, {
             method: 'PUT',
             headers: { 
                 'Content-Type': 'application/json',
@@ -62,7 +63,7 @@ export default function AuthorizedStudents() {
 
     const handleDelete = (index: number) => {
         if (!confirm('Are you sure you want to remove this authorized email?') || !token) return
-        fetch(`https://edureply.onrender.com/api/authorized-students/${index}`, {
+        fetch(`${API_BASE_URL}/api/authorized-students/${index}`, {
             method: 'DELETE',
             headers: { 'Authorization': `Bearer ${token}` }
         }).then(() => {
@@ -70,6 +71,7 @@ export default function AuthorizedStudents() {
             setEmails(newEmails)
         })
     }
+
 
     return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>

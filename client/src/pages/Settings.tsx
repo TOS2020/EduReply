@@ -12,6 +12,7 @@ export default function Settings() {
     const [isTesting, setIsTesting] = useState(false);
     const [isTestingImap, setIsTestingImap] = useState(false);
     const [isTestingE2E, setIsTestingE2E] = useState(false);
+    const [isRefreshingSync, setIsRefreshingSync] = useState(false);
     const [isSyncActive, setIsSyncActive] = useState(false);
     const [logs, setLogs] = useState<string[]>([]);
 
@@ -168,6 +169,28 @@ export default function Settings() {
         }
     };
 
+    const handleRefreshSync = async () => {
+        if (!token) return;
+        setIsRefreshingSync(true);
+        setStatus(null);
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/user/refresh-sync`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await response.json();
+            if (response.ok && data.success) {
+                setStatus({ type: 'success', message: data.message });
+            } else {
+                setStatus({ type: 'error', message: `Sync Error: ${data.message || 'Unknown error'}` });
+            }
+        } catch (err) {
+            setStatus({ type: 'error', message: 'Refresh failed. Server might be unreachable.' });
+        } finally {
+            setIsRefreshingSync(false);
+        }
+    };
+
     return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem', maxWidth: '800px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
@@ -232,25 +255,43 @@ export default function Settings() {
                         <h2 style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', color: 'var(--accent-green)', margin: 0 }}>
                             <Shield size={20} /> IMAP (Receiving)
                         </h2>
-                        <div style={{ 
-                            display: 'flex', 
-                            alignItems: 'center', 
-                            gap: '0.5rem', 
-                            fontSize: '0.85rem',
-                            padding: '0.35rem 0.75rem',
-                            borderRadius: '1rem',
-                            background: isSyncActive ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)',
-                            color: isSyncActive ? '#10b981' : '#ef4444',
-                            border: `1px solid ${isSyncActive ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)'}`
-                        }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                             <div style={{ 
-                                width: '8px', 
-                                height: '8px', 
-                                borderRadius: '50%', 
-                                background: 'currentColor',
-                                animation: isSyncActive ? 'pulse 2s infinite' : 'none'
-                            }} />
-                            {isSyncActive ? 'Real-time Sync Active' : 'Sync Offline'}
+                                display: 'flex', 
+                                alignItems: 'center', 
+                                gap: '0.5rem', 
+                                fontSize: '0.85rem',
+                                padding: '0.35rem 0.75rem',
+                                borderRadius: '1rem',
+                                background: isSyncActive ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)',
+                                color: isSyncActive ? '#10b981' : '#ef4444',
+                                border: `1px solid ${isSyncActive ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)'}`
+                            }}>
+                                <div style={{ 
+                                    width: '8px', 
+                                    height: '8px', 
+                                    borderRadius: '50%', 
+                                    background: 'currentColor',
+                                    animation: isSyncActive ? 'pulse 2s infinite' : 'none'
+                                }} />
+                                {isSyncActive ? 'Real-time Sync Active' : 'Sync Offline'}
+                            </div>
+                            <button 
+                                type="button" 
+                                onClick={handleRefreshSync} 
+                                disabled={isRefreshingSync}
+                                className="btn"
+                                style={{ 
+                                    padding: '0.35rem 0.75rem', 
+                                    fontSize: '0.75rem', 
+                                    background: 'rgba(255,255,255,0.05)',
+                                    color: 'var(--text-secondary)',
+                                    border: '1px solid rgba(255,255,255,0.1)',
+                                    borderRadius: '0.5rem'
+                                }}
+                            >
+                                {isRefreshingSync ? 'Refreshing...' : 'Refresh Sync Now'}
+                            </button>
                         </div>
                     </div>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { UserPlus, Mail, Lock, User } from 'lucide-react';
+import { API_BASE_URL } from '../config';
 
 export default function Register() {
   const [name, setName] = useState('');
@@ -14,11 +15,12 @@ export default function Register() {
     setError('');
     
     try {
-      const response = await fetch('https://edureply.onrender.com/api/register', {
+      const response = await fetch(`${API_BASE_URL}/api/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, email, password }),
       });
+
       
       if (response.ok) {
         navigate('/login');
