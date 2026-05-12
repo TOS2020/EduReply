@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, NavLink, Navigate, useLocation } from 'react-router-dom'
+import { HashRouter as Router, Routes, Route, NavLink, Navigate, useLocation } from 'react-router-dom'
 import { BookOpen, Users, Mail, LayoutDashboard, LogOut, User as UserIcon, Settings as SettingsIcon } from 'lucide-react'
 import KnowledgeBase from './pages/KnowledgeBase'
 import AuthorizedStudents from './pages/AuthorizedStudents'
