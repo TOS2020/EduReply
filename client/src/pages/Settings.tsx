@@ -327,6 +327,8 @@ export default function Settings() {
                     <button type="submit" disabled={isSaving || isTesting || isTestingImap || isTestingE2E} className="btn btn-blue" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.75rem 2rem' }}>
                         {isSaving ? 'Saving...' : <><Save size={18} /> Save Settings</>}
                     </button>
+                </div>
+
                 <div className="card" style={{ background: 'rgba(15, 23, 42, 0.6)' }}>
                     <h2 style={{ marginBottom: '1rem', fontSize: '1.1rem', color: 'var(--text-secondary)' }}>Live Activity Log</h2>
                     <div style={{ 

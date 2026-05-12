@@ -111,7 +111,10 @@ async function sendEmail(smtpConfig, to, subject, html, attachments) {
                 personalizations: [{
                     to: [{ email: to.trim() }]
                 }],
-                from: { email: smtpConfig.user.trim() },
+                from: { 
+                    email: smtpConfig.user.trim(),
+                    name: "EduReply Support" 
+                },
                 subject: subject,
                 content: [{
                     type: 'text/html',

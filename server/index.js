@@ -48,7 +48,7 @@ const authenticateToken = (req, res, next) => {
 };
 
 app.use(cors({
-    origin: ['https://tos2020.github.io', 'https://TOS2020.github.io', 'http://localhost:5173', 'http://localhost:3000'],
+    origin: ['https://tos2020.github.io', 'https://TOS2020.github.io', 'http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175', 'http://localhost:3000'],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
 }));

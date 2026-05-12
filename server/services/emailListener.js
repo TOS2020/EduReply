@@ -5,6 +5,7 @@ const { generateEduReply } = require('./aiService');
 require('dotenv').config();
 
 const activityLogs = new Map(); // userId -> string[]
+const activeListeners = new Map(); // userId -> ImapFlow client
 
 function logActivity(userId, message) {
     const logs = activityLogs.get(userId) || [];
