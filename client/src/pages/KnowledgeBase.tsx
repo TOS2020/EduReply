@@ -24,7 +24,18 @@ export default function KnowledgeBase() {
             headers: { 'Authorization': `Bearer ${token}` }
         })
             .then(res => res.json())
-            .then(data => setKnowledge(data))
+            .then(data => {
+                if (Array.isArray(data)) {
+                    setKnowledge(data);
+                } else {
+                    console.error("Failed to load knowledge base:", data);
+                    setKnowledge([]);
+                }
+            })
+            .catch(err => {
+                console.error("Knowledge base fetch error:", err);
+                setKnowledge([]);
+            });
     }, [token])
 
     const handleAdd = () => {

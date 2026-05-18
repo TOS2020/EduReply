@@ -17,7 +17,18 @@ export default function AuthorizedStudents() {
             headers: { 'Authorization': `Bearer ${token}` }
         })
             .then(res => res.json())
-            .then(data => setEmails(data))
+            .then(data => {
+                if (Array.isArray(data)) {
+                    setEmails(data);
+                } else {
+                    console.error("Failed to load students:", data);
+                    setEmails([]);
+                }
+            })
+            .catch(err => {
+                console.error("Students fetch error:", err);
+                setEmails([]);
+            });
     }, [token])
 
     const handleAdd = () => {

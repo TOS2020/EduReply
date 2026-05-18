@@ -27,13 +27,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const savedAuth = localStorage.getItem('auth');
-    if (savedAuth) {
-      const { user, token } = JSON.parse(savedAuth);
-      setUser(user);
-      setToken(token);
+    try {
+      const savedAuth = localStorage.getItem('auth');
+      if (savedAuth) {
+        const parsed = JSON.parse(savedAuth);
+        if (parsed && parsed.user && parsed.token) {
+          setUser(parsed.user);
+          setToken(parsed.token);
+        }
+      }
+    } catch (e) {
+      console.error("Error restoring auth from localStorage:", e);
+      localStorage.removeItem('auth'); // clear bad data
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   }, []);
 
   const login = (data: AuthData) => {

@@ -24,7 +24,18 @@ export default function DraftsReview() {
             headers: { 'Authorization': `Bearer ${token}` }
         })
             .then(res => res.json())
-            .then(data => setDrafts(data))
+            .then(data => {
+                if (Array.isArray(data)) {
+                    setDrafts(data);
+                } else {
+                    console.error("Failed to load drafts:", data);
+                    setDrafts([]);
+                }
+            })
+            .catch(err => {
+                console.error("Drafts fetch error:", err);
+                setDrafts([]);
+            });
     }
 
     const handleSimulate = () => {
