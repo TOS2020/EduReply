@@ -6,4 +6,5 @@ In Email Settings, you must provide the required SMTP (outgoing mail) and IMAP (
 Important Notice:
 Some university email systems may block outgoing messages due to strict firewall and security policies. Many institutions enforce DMARC/SPF rules that reject emails appearing to come from @gmail.com when they are sent through third‑party services such as SendGrid. This may prevent EduReply from successfully delivering messages to university email accounts.
 
+Link to the deployed site:
 https://tos2020.github.io/EduReply/#/login
